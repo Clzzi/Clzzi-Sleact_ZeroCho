@@ -5,7 +5,7 @@ import { Redirect } from 'react-router';
 import useSWR from 'swr';
 
 const WorkSpace: FC = ({ children }) => {
-  const { data, error, revalidate } = useSWR('http://localhost:3095/api/users', fetcher);
+  const { data, error, mutate } = useSWR('http://localhost:3095/api/users', fetcher);
 
   const onLogout = useCallback(() => {
     axios
@@ -13,7 +13,7 @@ const WorkSpace: FC = ({ children }) => {
         withCredentials: true,
       })
       .then(() => {
-        revalidate();
+        mutate(false,false);
       });
   }, []);
 

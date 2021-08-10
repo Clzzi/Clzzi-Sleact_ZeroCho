@@ -7,7 +7,9 @@ import React, { useCallback, useState } from 'react';
 import { Button, Error, Form, Header, Input, Label, LinkContainer } from '@pages/SignUp/styles';
 
 const LogIn = () => {
-  const { data, error, revalidate } = useSWR('http://localhost:3095/api/users', fetcher);
+  const { data, error, mutate } = useSWR('http://localhost:3095/api/users', fetcher, {
+    dedupingInterval: 2000,
+  });
   const [logInError, setLogInError] = useState(false);
   const [email, onChangeEmail] = useInput('');
   const [password, onChangePassword] = useInput('');
@@ -24,8 +26,8 @@ const LogIn = () => {
             withCredentials: true,
           },
         )
-        .then(() => {
-          revalidate();
+        .then((res) => {
+          mutate(res.data, false);
         })
         .catch((error) => {
           setLogInError(error.response?.data?.statusCode === 401);
@@ -34,8 +36,8 @@ const LogIn = () => {
     [email, password],
   );
 
-  if(data === undefined) {
-    return <div>로딩중. . .</div>
+  if (data === undefined) {
+    return <div>로딩중. . .</div>;
   }
 
   if (data) {
