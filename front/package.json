@@ -4,12 +4,14 @@
   "description": "",
   "main": "index.js",
   "scripts": {
+    "dev": "cross-env TS_NODE_PROJECT=\"tsconfig-for-webpack-config.json\" webpack serve --env development",
     "test": "echo \"Error: no test specified\" && exit 1",
     "build": "cross-env TS_NODE_PROJECT=\"tsconfig-for-webpack-config.json\" webpack"
   },
   "author": "Clzzi",
   "license": "MIT",
   "dependencies": {
+    "@pmmmwh/react-refresh-webpack-plugin": "^0.4.3",
     "@types/react": "^17.0.16",
     "@types/react-dom": "^17.0.9",
     "cross-env": "^7.0.3",
@@ -27,13 +29,16 @@
     "@babel/preset-typescript": "^7.15.0",
     "@types/node": "^16.4.13",
     "@types/webpack": "^5.28.0",
+    "@types/webpack-dev-server": "^3.11.5",
     "babel-loader": "^8.2.2",
     "eslint": "^7.32.0",
     "eslint-config-prettier": "^8.3.0",
     "eslint-plugin-prettier": "^3.4.0",
+    "fork-ts-checker-webpack-plugin": "^6.3.2",
     "prettier": "^2.3.2",
     "react-refresh": "^0.10.0",
     "webpack": "^5.49.0",
-    "webpack-cli": "^4.7.2"
+    "webpack-cli": "^4.7.2",
+    "webpack-dev-server": "^3.11.2"
   }
 }
