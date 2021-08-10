@@ -37,11 +37,17 @@ const SignUp = () => {
         setSignUpError('');
         setSignUpSuccess(false);
         axios
-          .post('http://localhost:3095/api/users', {
-            email,
-            nickname,
-            password,
-          })
+          .post(
+            'http://localhost:3095/api/users',
+            {
+              email,
+              nickname,
+              password,
+            },
+            {
+              withCredentials: true,
+            },
+          )
           .then((response) => {
             console.log(response);
             setSignUpSuccess(true);
@@ -50,9 +56,7 @@ const SignUp = () => {
             console.log(error.response);
             setSignUpError(error.response.data);
           })
-          .finally(() => {
-
-          });
+          .finally(() => {});
       }
     },
     [mismatchError],
