@@ -7,7 +7,7 @@ import React, { useCallback, useState } from 'react';
 import { Button, Error, Form, Header, Input, Label, LinkContainer } from '@pages/SignUp/styles';
 
 const LogIn = () => {
-  const { data, error, mutate } = useSWR('http://localhost:3095/api/users', fetcher, {
+  const { data, error, mutate } = useSWR('/api/users', fetcher, {
     dedupingInterval: 2000,
   });
   const [logInError, setLogInError] = useState(false);
@@ -20,7 +20,7 @@ const LogIn = () => {
       setLogInError(false);
       axios
         .post(
-          'http://localhost:3095/api/users/login',
+          '/api/users/login',
           { email, password },
           {
             withCredentials: true,
