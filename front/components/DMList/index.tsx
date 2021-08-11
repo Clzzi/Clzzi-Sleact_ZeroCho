@@ -10,11 +10,16 @@ import useSWR from 'swr';
 
 const DMList: FC = () => {
   const { workspace } = useParams<{ workspace?: string }>();
-  const { data: userData, error, revalidate, mutate } = useSWR<IUser>('/api/users', fetcher, {
+  const {
+    data: userData,
+    error,
+    revalidate,
+    mutate,
+  } = useSWR<IUser>('/api/users', fetcher, {
     dedupingInterval: 2000, // 2초
   });
   const { data: memberData } = useSWR<IUserWithOnline[]>(
-    userData ? `api/workspaces/${workspace}/members` : null,
+    userData ? `/api/workspaces/${workspace}/members` : null,
     fetcher,
   );
   // const [socket] = useSocket(workspace);
@@ -42,7 +47,7 @@ const DMList: FC = () => {
   //     socket?.off('onlineList');
   //   };
   // }, [socket]);
-
+  
   return (
     <>
       <h2>

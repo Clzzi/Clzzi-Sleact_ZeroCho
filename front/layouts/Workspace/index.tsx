@@ -39,22 +39,11 @@ const DirectMessage = loadable(() => import('@pages/DirectMessage'));
 
 const WorkSpace: VFC = () => {
   const { workspace } = useParams<{ workspace: string }>();
-  const {
-    data: userData,
-    error,
-    mutate,
-    revalidate,
-  } = useSWR<IUser | false>('/api/users', fetcher);
+  const { data: userData, error, mutate, revalidate } = useSWR<IUser | false>('/api/users', fetcher);
 
-  const { data: channelData } = useSWR<IChannel[]>(
-    userData ? `/api/workspaces/${workspace}/channels` : null,
-    fetcher,
-  );
+  const { data: channelData } = useSWR<IChannel[]>(userData ? `/api/workspaces/${workspace}/channels` : null, fetcher);
 
-  const { data: meberData } = useSWR<IChannel[]>(
-    userData ? `/api/worksapces/${workspace}/members` : null,
-    fetcher,
-  );
+  const { data: meberData } = useSWR<IChannel[]>(userData ? `/api/worksapces/${workspace}/members` : null, fetcher);
 
   const [showUserMenu, setShowUserMenu] = useState(false);
   const [showCreateWorkspaceModal, setShowCreateWorkspaceModal] = useState(false);
@@ -161,9 +150,9 @@ const WorkSpace: VFC = () => {
       </Header>
       <WorkspaceWrapper>
         <Workspaces>
-          {userData?.Workspaces.map((ws: IWorkspace) => {
+          {userData?.Workspaces?.map((ws: IWorkspace) => {
             return (
-              <Link key={ws.id} to={`/workspace/${ws.id}/channel/일반`}>
+              <Link key={ws.id} to={`/workspace/${ws.url}/channel/일반`}>
                 <WorkspaceButton>{ws.name.slice(0, 1).toUpperCase()}</WorkspaceButton>
               </Link>
             );
@@ -181,7 +170,7 @@ const WorkSpace: VFC = () => {
                 <button onClick={onLogout}>로그아웃</button>
               </WorkspaceModal>
             </Menu>
-            {/* <ChannelList userData={userData} /> */}
+            <ChannelList />
             <DMList />
           </MenuScroll>
         </Channels>
