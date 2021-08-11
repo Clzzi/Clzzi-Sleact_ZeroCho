@@ -1,20 +1,42 @@
-import React, { VFC } from 'react';
-import { Form } from '@pages/SignUp/styles';
+import autosize from 'autosize';
 import { useCallback } from 'react';
+import { Form } from '@pages/SignUp/styles';
+import React, { useEffect, useRef, VFC } from 'react';
 import { ChatArea, MentionsTextarea, SendButton, Toolbox } from './styles';
 
 interface Props {
   chat: string;
+  onSubmitForm: (e: any) => void;
+  onChangeChat: (e: any) => void;
+  placeholder?: string;
 }
 
-const ChatBox: VFC<Props> = ({ chat }) => {
-  const onSubmitForm = useCallback(() => {}, []);
+const ChatBox: VFC<Props> = ({ chat, onSubmitForm, onChangeChat, placeholder }) => {
+  const textareaRef = useRef<HTMLTextAreaElement>(null);
+  useEffect(() => {
+    if (textareaRef.current) {
+      autosize(textareaRef.current);
+    }
+  }, []);
+  const onKeyDownChat = useCallback((e) => {
+    console.log(e);
+    if (e.key === 'Enter' && !e.shiftKey) {
+      e.preventDefault();
+      onSubmitForm(e);
+    }
+  }, []);
+
   return (
     <ChatArea>
       <Form onSubmit={onSubmitForm}>
-        <MentionsTextarea>
-          <textarea />
-        </MentionsTextarea>
+        <MentionsTextarea
+          id="deitor-chat"
+          value={chat}
+          onChange={onChangeChat}
+          onKeyDown={onKeyDownChat}
+          placeholder={placeholder}
+          ref={textareaRef}
+        />
         <Toolbox>
           <SendButton
             className={
