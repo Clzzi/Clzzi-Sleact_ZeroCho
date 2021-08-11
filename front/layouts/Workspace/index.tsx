@@ -40,11 +40,8 @@ const DirectMessage = loadable(() => import('@pages/DirectMessage'));
 const WorkSpace: VFC = () => {
   const { workspace } = useParams<{ workspace: string }>();
   const { data: userData, error, mutate, revalidate } = useSWR<IUser | false>('/api/users', fetcher);
-
   const { data: channelData } = useSWR<IChannel[]>(userData ? `/api/workspaces/${workspace}/channels` : null, fetcher);
-
   const { data: meberData } = useSWR<IChannel[]>(userData ? `/api/worksapces/${workspace}/members` : null, fetcher);
-
   const [showUserMenu, setShowUserMenu] = useState(false);
   const [showCreateWorkspaceModal, setShowCreateWorkspaceModal] = useState(false);
   const [showWorkspaceModal, setShowWorkspaceModal] = useState(false);
@@ -121,7 +118,7 @@ const WorkSpace: VFC = () => {
       .then(() => {
         mutate(false, false);
       });
-  }, []);
+  }, [mutate]);
 
   if (!userData) {
     return <Redirect to="/login" />;
