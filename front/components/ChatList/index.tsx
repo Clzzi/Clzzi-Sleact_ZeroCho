@@ -46,4 +46,4 @@ const ChatList = forwardRef<Scrollbars, Props>(({ chatSections, setSize, isReach
   );
 });
 
-export default ChatList;
+export default ChatList; 
