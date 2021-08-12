@@ -1,12 +1,11 @@
 import autosize from 'autosize';
 import { useCallback } from 'react';
 import { Mention, SuggestionDataItem } from 'react-mentions';
-import { Form } from '@pages/SignUp/styles';
 import React, { useEffect, useRef, VFC } from 'react';
-import { ChatArea, EachMention, MentionsTextarea, SendButton, Toolbox } from './styles';
+import { ChatArea, Form, EachMention, MentionsTextarea, SendButton, Toolbox } from './styles';
 import fetcher from '@utils/fetcher';
 import { useParams } from 'react-router';
-import { IChannel, IUser } from '@typings/db';
+import { IUser } from '@typings/db';
 import gravatar from 'gravatar';
 import useSWR from 'swr';
 
