@@ -1,25 +1,22 @@
-import { IChat, IDM } from '@typings/db';
-import React, { memo, VFC, useMemo } from 'react';
-import { ChatWrapper } from './styles';
-import gravatar from 'gravatar';
 import dayjs from 'dayjs';
+import gravatar from 'gravatar';
+import { ChatWrapper } from './styles';
+import { IChat, IDM } from '@typings/db';
 import regexifyString from 'regexify-string';
+import React, { memo, VFC, useMemo } from 'react';
 import { Link, useParams } from 'react-router-dom';
 
 interface Props {
   data: IDM | IChat;
 }
 
-const BACK_URL = process.env.NODE_ENV === 'development' ? 'http://localhost:3095' : 'http://localhost:3095';
 const Chat: VFC<Props> = ({ data }) => {
   const { workspace } = useParams<{ workspace: string }>();
-  //@[Clzzi](1)
-  // /d 숫자, + 한개이상, ?는 0개나 1개, * 0개이상, g는 모두찾기
   const user = 'Sender' in data ? data.Sender : data.User;
   const result = useMemo(
     () =>
       data.content.startsWith('uploads\\') ? (
-        <img src={`${BACK_URL}/${data.content}`} style={{ maxHeight: 200 }} />
+        <img src={`http://localhost:3095/${data.content}`} style={{ maxHeight: 200 }} />
       ) : (
         regexifyString({
           input: data.content,

@@ -7,12 +7,13 @@ import React, { useCallback, useState } from 'react';
 import { Button, Error, Form, Header, Input, Label, LinkContainer } from '@pages/SignUp/styles';
 
 const LogIn = () => {
-  const { data, error, revalidate } = useSWR('/api/users', fetcher, {
-    dedupingInterval: 2000,
-  });
   const [logInError, setLogInError] = useState(false);
   const [email, onChangeEmail] = useInput('');
   const [password, onChangePassword] = useInput('');
+
+  const { data, revalidate } = useSWR('/api/users', fetcher, {
+    dedupingInterval: 2000,
+  });
 
   const onSubmit = useCallback(
     (e) => {

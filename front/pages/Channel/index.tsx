@@ -1,23 +1,32 @@
-import React, { useCallback, useEffect, useRef, useState } from 'react';
-import { Container, DragOver, Header } from '@pages/Channel/styles';
-import ChatList from '@components/ChatList';
-import useInput from '@hooks/useInput';
-import ChatBox from '@components/ChatBox';
-import makeSection from '@utils/makeSection';
 import axios from 'axios';
-import { IChannel, IChat, IUser } from '@typings/db';
 import fetcher from '@utils/fetcher';
-import useSWR, { useSWRInfinite } from 'swr';
+import useInput from '@hooks/useInput';
 import useSocket from '@hooks/useSocket';
 import { useParams } from 'react-router';
+import ChatBox from '@components/ChatBox';
+import ChatList from '@components/ChatList';
+import makeSection from '@utils/makeSection';
+import useSWR, { useSWRInfinite } from 'swr';
 import Scrollbars from 'react-custom-scrollbars';
+import { IChannel, IChat, IUser } from '@typings/db';
 import InviteChannelModal from '@components/InviteChannelModal';
+import { Container, DragOver, Header } from '@pages/Channel/styles';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 
 const Channel = () => {
-  const scrollbarRef = useRef<Scrollbars>(null);
-  const { data: myData } = useSWR(`/api/users`, fetcher);
   const { workspace, channel } = useParams<{ workspace: string; channel: string }>();
+  const [socket] = useSocket(workspace);
+  const scrollbarRef = useRef<Scrollbars>(null);
+  const [dragOver, setDragOver] = useState(false);
+  const [chat, onChangeChat, setChat] = useInput('');
+  const [showInviteChannelModal, setShowInviteChannelModal] = useState(false);
+
+  const { data: myData } = useSWR(`/api/users`, fetcher);
   const { data: channelData } = useSWR<IChannel>(`/api/workspaces/${workspace}/channels/${channel}`, fetcher);
+  const { data: channelMembersData } = useSWR<IUser[]>(
+    myData ? `/api/workspaces/${workspace}/channels/${channel}/members` : null,
+    fetcher,
+  );
   const {
     data: chatData,
     mutate: mutateChat,
@@ -27,16 +36,58 @@ const Channel = () => {
     (index) => `/api/workspaces/${workspace}/channels/${channel}/chats?perPage=20&page=${index + 1}`,
     fetcher,
   );
-  const { data: channelMembersData } = useSWR<IUser[]>(
-    myData ? `/api/workspaces/${workspace}/channels/${channel}/members` : null,
-    fetcher,
-  );
-  const [socket] = useSocket(workspace);
-  const [dragOver, setDragOver] = useState(false);
+
   const isEmpty = chatData?.[0]?.length === 0;
   const isReachingEnd = isEmpty || (chatData && chatData[chatData.length - 1]?.length < 20) || false;
-  const [showInviteChannelModal, setShowInviteChannelModal] = useState(false);
-  const [chat, onChangeChat, setChat] = useInput('');
+  const chatSections = makeSection(chatData ? chatData.flat().reverse() : []);
+
+  useEffect(() => {
+    if (chatData?.length === 1) {
+      setTimeout(() => {
+        scrollbarRef.current?.scrollToBottom();
+      }, 100);
+    }
+  }, [chatData]);
+
+  useEffect(() => {
+    localStorage.setItem(`${workspace}-${channel}`, new Date().getTime().toString());
+  }, [workspace, channel]);
+
+  const onClickInviteChannel = useCallback(() => {
+    setShowInviteChannelModal(true);
+  }, []);
+
+  const onCloseModal = useCallback(() => {
+    setShowInviteChannelModal(false);
+  }, []);
+
+  const onDragOver = useCallback((e) => {
+    e.preventDefault();
+    setDragOver(true);
+  }, []);
+
+  const onDrop = useCallback(
+    (e) => {
+      e.preventDefault();
+      const formData = new FormData();
+      if (e.dataTransfer.items) {
+        for (let i = 0; i < e.dataTransfer.items.length; i++) {
+          if (e.dataTransfer.items[i].kind === 'file') {
+            const file = e.dataTransfer.items[i].getAsFile();
+            formData.append('image', file);
+          }
+        }
+      } else {
+        for (let i = 0; i < e.dataTransfer.files.length; i++) {
+          formData.append('image', e.dataTransfer.files[i]);
+        }
+      }
+      axios.post(`/api/workspaces/${workspace}/channels/${channel}/images`, formData).then(() => {
+        setDragOver(false);
+      });
+    },
+    [workspace, channel],
+  );
 
   const onMessage = useCallback(
     (data: IChat) => {
@@ -104,57 +155,7 @@ const Channel = () => {
     };
   }, [socket, onMessage]);
 
-  useEffect(() => {
-    if (chatData?.length === 1) {
-      setTimeout(() => {
-        scrollbarRef.current?.scrollToBottom();
-      }, 100);
-    }
-  }, [chatData]);
-
-  useEffect(() => {
-    localStorage.setItem(`${workspace}-${channel}`, new Date().getTime().toString());
-  }, [workspace, channel]);
-
   if (!myData || !myData) return null;
-
-  const onClickInviteChannel = useCallback(() => {
-    setShowInviteChannelModal(true);
-  }, []);
-
-  const onCloseModal = useCallback(() => {
-    setShowInviteChannelModal(false);
-  }, []);
-
-  const onDragOver = useCallback((e) => {
-    e.preventDefault();
-    setDragOver(true);
-  }, []);
-
-  const onDrop = useCallback(
-    (e) => {
-      e.preventDefault();
-      const formData = new FormData();
-      if (e.dataTransfer.items) {
-        for (let i = 0; i < e.dataTransfer.items.length; i++) {
-          if (e.dataTransfer.items[i].kind === 'file') {
-            const file = e.dataTransfer.items[i].getAsFile();
-            formData.append('image', file);
-          }
-        }
-      } else {
-        for (let i = 0; i < e.dataTransfer.files.length; i++) {
-          formData.append('image', e.dataTransfer.files[i]);
-        }
-      }
-      axios.post(`/api/workspaces/${workspace}/channels/${channel}/images`, formData).then(() => {
-        setDragOver(false);
-      });
-    },
-    [workspace, channel],
-  );
-
-  const chatSections = makeSection(chatData ? chatData.flat().reverse() : []);
 
   return (
     <Container onDrop={onDrop} onDragOver={onDragOver}>

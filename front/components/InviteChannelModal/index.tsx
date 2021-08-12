@@ -1,22 +1,24 @@
-import Modal from '@components/Modal';
-import useInput from '@hooks/useInput';
-import { Button, Input, Label } from '@pages/SignUp/styles';
+import useSWR from 'swr';
+import axios from 'axios';
 import { IUser } from '@typings/db';
 import fetcher from '@utils/fetcher';
-import axios from 'axios';
-import React, { FC, useCallback } from 'react';
-import { useParams } from 'react-router';
+import Modal from '@components/Modal';
 import { toast } from 'react-toastify';
-import useSWR from 'swr';
+import useInput from '@hooks/useInput';
+import { useParams } from 'react-router';
+import React, { FC, useCallback } from 'react';
+import { Button, Input, Label } from '@pages/SignUp/styles';
 
 interface Props {
   show: boolean;
   onCloseModal: () => void;
   setShowInviteChannelModal: (flag: boolean) => void;
 }
+
 const InviteChannelModal: FC<Props> = ({ show, onCloseModal, setShowInviteChannelModal }) => {
   const { workspace, channel } = useParams<{ workspace: string; channel: string }>();
   const [newMember, onChangeNewMember, setNewMember] = useInput('');
+
   const { data: userData } = useSWR<IUser>('/api/users', fetcher);
   const { revalidate: revalidateMembers } = useSWR<IUser[]>(
     userData && channel ? `/api/workspaces/${workspace}/channels/${channel}/members` : null,

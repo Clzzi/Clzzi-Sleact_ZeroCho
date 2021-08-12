@@ -1,13 +1,13 @@
+import useSWR from 'swr';
 import autosize from 'autosize';
+import gravatar from 'gravatar';
+import { IUser } from '@typings/db';
 import { useCallback } from 'react';
-import { Mention, SuggestionDataItem } from 'react-mentions';
-import React, { useEffect, useRef, VFC } from 'react';
-import { ChatArea, Form, EachMention, MentionsTextarea, SendButton, Toolbox } from './styles';
 import fetcher from '@utils/fetcher';
 import { useParams } from 'react-router';
-import { IUser } from '@typings/db';
-import gravatar from 'gravatar';
-import useSWR from 'swr';
+import React, { useEffect, useRef, VFC } from 'react';
+import { Mention, SuggestionDataItem } from 'react-mentions';
+import { ChatArea, Form, EachMention, MentionsTextarea, SendButton, Toolbox } from './styles';
 
 interface Props {
   chat: string;
@@ -18,21 +18,18 @@ interface Props {
 
 const ChatBox: VFC<Props> = ({ chat, onSubmitForm, onChangeChat, placeholder }) => {
   const { workspace } = useParams<{ workspace: string }>();
-  const {
-    data: userData,
-    error,
-    revalidate,
-    mutate,
-  } = useSWR<IUser | false>('/api/users', fetcher, {
-    dedupingInterval: 2000, // 2초
+  const { data: userData } = useSWR<IUser | false>('/api/users', fetcher, {
+    dedupingInterval: 2000,
   });
   const { data: memberData } = useSWR<IUser[]>(userData ? `/api/workspaces/${workspace}/members` : null, fetcher);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
+
   useEffect(() => {
     if (textareaRef.current) {
       autosize(textareaRef.current);
     }
   }, []);
+
   const onKeyDownChat = useCallback(
     (e) => {
       if (e.key === 'Enter' && !e.shiftKey) {

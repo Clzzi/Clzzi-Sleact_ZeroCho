@@ -1,19 +1,19 @@
+import useSWR from 'swr';
 import axios from 'axios';
+import fetcher from '@utils/fetcher';
 import useInput from '@hooks/useInput';
+import { Link, Redirect } from 'react-router-dom';
 import React, { useCallback, useState } from 'react';
 import { Button, Error, Form, Header, Input, Label, LinkContainer, Success } from '@pages/SignUp/styles';
-import { Link, Redirect } from 'react-router-dom';
-import fetcher from '@utils/fetcher';
-import useSWR from 'swr';
 
 const SignUp = () => {
-  const { data, error, revalidate } = useSWR('/api/users', fetcher);
+  const { data } = useSWR('/api/users', fetcher);
   const [email, onChangeEmail] = useInput('');
-  const [nickname, onChangeNickname] = useInput('');
   const [password, , setPassword] = useInput('');
+  const [nickname, onChangeNickname] = useInput('');
+  const [signUpError, setSignUpError] = useState('');
   const [passwordCheck, , setPasswordCheck] = useInput('');
   const [mismatchError, setMismatchError] = useState(false);
-  const [signUpError, setSignUpError] = useState('');
   const [signUpSuccess, setSignUpSuccess] = useState(false);
 
   const onChangePassword = useCallback(

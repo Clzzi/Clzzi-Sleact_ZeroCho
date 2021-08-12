@@ -1,38 +1,26 @@
-// import useSocket from '@hooks/useSocket';
-import { CollapseButton } from '@components/DMList/styles';
+import useSWR from 'swr';
+import fetcher from '@utils/fetcher';
 import EachDM from '@components/EachDM';
 import useSocket from '@hooks/useSocket';
-import { IUser, IUserWithOnline } from '@typings/db';
-import fetcher from '@utils/fetcher';
-import React, { FC, useCallback, useEffect, useState } from 'react';
 import { useParams } from 'react-router';
-import { NavLink } from 'react-router-dom';
-import useSWR from 'swr';
+import { IUser, IUserWithOnline } from '@typings/db';
+import { CollapseButton } from '@components/DMList/styles';
+import React, { FC, useCallback, useEffect, useState } from 'react';
 
 const DMList: FC = () => {
   const { workspace } = useParams<{ workspace?: string }>();
-  const {
-    data: userData,
-    error,
-    revalidate,
-    mutate,
-  } = useSWR<IUser>('/api/users', fetcher, {
-    dedupingInterval: 2000, // 2초
+  const [socket] = useSocket(workspace);
+  const [channelCollapse, setChannelCollapse] = useState(false);
+  const [onlineList, setOnlineList] = useState<number[]>([]);
+  const { data: userData } = useSWR<IUser>('/api/users', fetcher, {
+    dedupingInterval: 2000,
   });
   const { data: memberData } = useSWR<IUserWithOnline[]>(
     userData ? `/api/workspaces/${workspace}/members` : null,
     fetcher,
   );
-  const [socket] = useSocket(workspace);
-  const [channelCollapse, setChannelCollapse] = useState(false);
-  const [onlineList, setOnlineList] = useState<number[]>([]);
-
-  const toggleChannelCollapse = useCallback(() => {
-    setChannelCollapse((prev) => !prev);
-  }, []);
 
   useEffect(() => {
-    console.log('DMList: workspace 바꼈다', workspace);
     setOnlineList([]);
   }, [workspace]);
 
@@ -40,12 +28,14 @@ const DMList: FC = () => {
     socket?.on('onlineList', (data: number[]) => {
       setOnlineList(data);
     });
-    // socket?.on('dm', onMessage);
     return () => {
-      // socket?.off('dm', onMessage);
       socket?.off('onlineList');
     };
   }, [socket]);
+
+  const toggleChannelCollapse = useCallback(() => {
+    setChannelCollapse((prev) => !prev);
+  }, []);
 
   return (
     <>

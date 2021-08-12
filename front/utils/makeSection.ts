@@ -1,5 +1,5 @@
-import { IChat, IDM } from '@typings/db';
 import dayjs from 'dayjs';
+import { IChat, IDM } from '@typings/db';
 
 const makeSection = (chatList: (IDM | IChat)[]) => {
   const sections: { [key: string]: (IDM | IChat)[] } = {};

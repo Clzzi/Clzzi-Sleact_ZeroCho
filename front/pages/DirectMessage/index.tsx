@@ -1,22 +1,27 @@
-import useSWR, { useSWRInfinite } from 'swr';
-import React, { useCallback, useEffect, useRef, useState } from 'react';
+import axios from 'axios';
 import gravatar from 'gravatar';
+import { IDM } from '@typings/db';
 import fetcher from '@utils/fetcher';
+import useInput from '@hooks/useInput';
 import { useParams } from 'react-router';
-import { Container, Header } from '@pages/DirectMessage/styles';
+import useSocket from '@hooks/useSocket';
 import ChatBox from '@components/ChatBox';
 import ChatList from '@components/ChatList';
-import useInput from '@hooks/useInput';
-import axios from 'axios';
-import { IDM } from '@typings/db';
+import useSWR, { useSWRInfinite } from 'swr';
 import makeSection from '@utils/makeSection';
 import Scrollbars from 'react-custom-scrollbars';
-import useSocket from '@hooks/useSocket';
 import { DragOver } from '@pages/Channel/styles';
+import { Container, Header } from '@pages/DirectMessage/styles';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 
 const DirectMessage = () => {
-  const scrollbarRef = useRef<Scrollbars>(null);
   const { workspace, id } = useParams<{ workspace: string; id: string }>();
+  const [socket] = useSocket(workspace);
+  const scrollbarRef = useRef<Scrollbars>(null);
+  const [dragOver, setDragOver] = useState(false);
+  const [chat, onChangeChat, setChat] = useInput('');
+
+  const { data: myData } = useSWR(`/api/users`, fetcher);
   const { data: userData } = useSWR(`/api/workspaces/${workspace}/users/${id}`, fetcher);
   const {
     data: chatData,
@@ -27,13 +32,10 @@ const DirectMessage = () => {
     (index) => `/api/workspaces/${workspace}/dms/${id}/chats?perPage=20&page=${index + 1}`,
     fetcher,
   );
-  const [socket] = useSocket(workspace);
+
   const isEmpty = chatData?.[0]?.length === 0;
   const isReachingEnd = isEmpty || (chatData && chatData[chatData.length - 1]?.length < 20) || false;
-
-  const { data: myData } = useSWR(`/api/users`, fetcher);
-  const [chat, onChangeChat, setChat] = useInput('');
-  const [dragOver, setDragOver] = useState(false);
+  const chatSections = makeSection(chatData ? chatData.flat().reverse() : []);
 
   useEffect(() => {
     if (chatData?.length === 1) {
@@ -141,8 +143,6 @@ const DirectMessage = () => {
   );
 
   if (!userData || !myData) return null;
-
-  const chatSections = makeSection(chatData ? chatData.flat().reverse() : []);
 
   return (
     <Container onDrop={onDrop} onDragOver={onDragOver}>
