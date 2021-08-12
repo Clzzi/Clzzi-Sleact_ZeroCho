@@ -41,6 +41,7 @@
     "@babel/preset-env": "^7.15.0",
     "@babel/preset-react": "^7.14.5",
     "@babel/preset-typescript": "^7.15.0",
+    "@jjordy/swr-devtools": "^1.0.6",
     "@types/loadable__component": "^5.13.4",
     "@types/node": "^16.4.13",
     "@types/react-custom-scrollbars": "^4.0.8",

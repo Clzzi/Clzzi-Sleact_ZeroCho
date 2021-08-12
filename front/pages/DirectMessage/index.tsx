@@ -35,6 +35,48 @@ const DirectMessage = () => {
   const [chat, onChangeChat, setChat] = useInput('');
   const [dragOver, setDragOver] = useState(false);
 
+  useEffect(() => {
+    if (chatData?.length === 1) {
+      setTimeout(() => {
+        scrollbarRef.current?.scrollToBottom();
+      }, 100);
+    }
+  }, [chatData]);
+
+  useEffect(() => {
+    localStorage.setItem(`${workspace}-${id}`, new Date().getTime().toString());
+  }, [workspace, id]);
+
+  const onDrop = useCallback(
+    (e) => {
+      e.preventDefault();
+      const formData = new FormData();
+      if (e.dataTransfer.items) {
+        for (let i = 0; i < e.dataTransfer.items.length; i++) {
+          if (e.dataTransfer.items[i].kind === 'file') {
+            const file = e.dataTransfer.items[i].getAsFile();
+            formData.append('image', file);
+          }
+        }
+      } else {
+        for (let i = 0; i < e.dataTransfer.files.length; i++) {
+          formData.append('image', e.dataTransfer.files[i]);
+        }
+      }
+      axios.post(`/api/workspaces/${workspace}/dms/${id}/images`, formData).then(() => {
+        setDragOver(false);
+        localStorage.setItem(`${workspace}-${id}`, new Date().getTime().toString());
+        revalidate();
+      });
+    },
+    [revalidate, workspace, id],
+  );
+
+  const onDragOver = useCallback((e) => {
+    e.preventDefault();
+    setDragOver(true);
+  }, []);
+
   const onMessage = useCallback((data: IDM) => {
     if (data.SenderId === Number(id) && myData.id !== Number(id)) {
       mutateChat((chatData) => {
@@ -55,6 +97,13 @@ const DirectMessage = () => {
     }
   }, []);
 
+  useEffect(() => {
+    socket?.on('dm', onMessage);
+    return () => {
+      socket?.off('dm', onMessage);
+    };
+  }, [socket, onMessage]);
+
   const onSubmitForm = useCallback(
     (e) => {
       e.preventDefault();
@@ -72,6 +121,7 @@ const DirectMessage = () => {
           });
           return prevChatData;
         }, false).then(() => {
+          localStorage.setItem(`${workspace}-${id}`, new Date().getTime().toString());
           setChat('');
           scrollbarRef.current?.scrollToBottom();
         });
@@ -90,53 +140,9 @@ const DirectMessage = () => {
     [chat, chatData, myData, userData, workspace, id],
   );
 
-  useEffect(() => {
-    socket?.on('dm', onMessage);
-    return () => {
-      socket?.off('dm', onMessage);
-    };
-  }, [socket, onMessage]);
-
-  useEffect(() => {
-    if (chatData?.length === 1) {
-      setTimeout(() => {
-        scrollbarRef.current?.scrollToBottom();
-      }, 100);
-    }
-  }, [chatData]);
-
   if (!userData || !myData) return null;
 
   const chatSections = makeSection(chatData ? chatData.flat().reverse() : []);
-
-  const onDrop = useCallback(
-    (e) => {
-      e.preventDefault();
-      const formData = new FormData();
-      if (e.dataTransfer.items) {
-        for (let i = 0; i < e.dataTransfer.items.length; i++) {
-          if (e.dataTransfer.items[i].kind === 'file') {
-            const file = e.dataTransfer.items[i].getAsFile();
-            formData.append('image', file);
-          }
-        }
-      } else {
-        for (let i = 0; i < e.dataTransfer.files.length; i++) {
-          formData.append('image', e.dataTransfer.files[i]);
-        }
-      }
-      axios.post(`/api/workspaces/${workspace}/dms/${id}/images`, formData).then(() => {
-        setDragOver(false);
-        revalidate();
-      });
-    },
-    [revalidate, workspace, id],
-  );
-
-  const onDragOver = useCallback((e) => {
-    e.preventDefault();
-    setDragOver(true);
-  }, []);
 
   return (
     <Container onDrop={onDrop} onDragOver={onDragOver}>
