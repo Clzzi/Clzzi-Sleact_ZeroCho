@@ -1,4 +1,4 @@
-import { IDM } from '@typings/db';
+import { IChat, IDM } from '@typings/db';
 import React, { memo, VFC, useMemo } from 'react';
 import { ChatWrapper } from './styles';
 import gravatar from 'gravatar';
@@ -7,14 +7,14 @@ import regexifyString from 'regexify-string';
 import { Link, useParams } from 'react-router-dom';
 
 interface Props {
-  data: IDM;
+  data: IDM | IChat;
 }
 
 const Chat: VFC<Props> = ({ data }) => {
   const { workspace } = useParams<{ workspace: string }>();
   //@[Clzzi](1)
   // /d 숫자, + 한개이상, ?는 0개나 1개, * 0개이상, g는 모두찾기
-  const user = data.Sender;
+  const user = 'Sender' in data ? data.Sender : data.User;
   const result = useMemo(
     () =>
       regexifyString({
