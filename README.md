@@ -1,7 +1,7 @@
 ## 📢 Sleact [Slack Clone Coding With ZeroCho]
 인프런 강의인 [<Sleact 클론 코딩>](https://www.inflearn.com/course/%ED%81%B4%EB%A1%A0%EC%BD%94%EB%94%A9-%EC%8B%A4%EC%8B%9C%EA%B0%84%EC%B1%84%ED%8C%85/dashboard)을 보고 배운점 및 소스코드를 올렸습니다.
 
-### 느낀점 바로가기
+### [느낀점 및 배운점 바로가기](https://github.com/Clzzi/Clzzi-Sleact_ZeroCho/blob/main/Realization.md)
 
 <details open>
   <summary><strong>프로젝트 결과물</strong></summary>
