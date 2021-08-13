@@ -67,7 +67,82 @@ input 태그가 들어가는 컴포넌트는 되도록 쪼개는 게 좋다. 그
   - **NavLink**
 Navigation Bar 만들 때 Link말고 NavLink사용하면 좋을듯, NavLink사용시 해당 페이지 URL과 NavLink에 지정해준 URL이 똑같으면 activeClass가 적용됨
   
-  - ****
+  - **파라미터 불특정 키 타입 지정**    
+어떤 파라미터를 받아오는 함수 같은 게 있을 때, 파라미터로 어떤 타입의 값이 들어올지 모를 때가 있다. 그럴 때 해당 파라미터의 타입을 정의하려면 아래와 같이 해주면 된다.
+```ts
+  const sockets: { [key: string]:SocketIOClinet.Socket } = {};
+```
+  
+  - **dayjs 와 moment**    
+dayjs와 moment의 차이점: dayjs는 가볍고 비교적 최근에 나왔고 불변성을 지킨다. 또한 다국어 지원, 여러 브라우저 지원, moment와 api 유사성 등 여러 장점이 있다. moment는 dayjs보다 무겁고 불변성을 지키지 않는다. 그러나 예전부터 지속적으로 개발되어온 신뢰성 있는 라이브러리이다.
+  
+  - **Emotion 과 Styled-Component의 장점 2번째**    
+Emotion이나 Styled-Component처럼 TypeScript로 Styling을 할 수 있는 lib의 장점 2번째가 바로 아래 코드에서 나타나는 것 같다. EachMention이라는 버튼 스타일링 컴포넌트의 props로 focus(booelan)을 받아서 focus가 true 면 특정 스타일을 먹일 수 있다니.. 정말 간편하면서도 class를 남발하지 않아도 돼서 좋은 것 같다. 점점 emotion이 좋아진다.
+```ts
+  export const EachMention = styled.button<{ focus: boolean }>`
+    padding: 4px 20px;
+    background: transparent;
+    border: none;
+    display: flex;
+    align-items: center;
+    color: rgb(28, 29, 28);
+    width: 100%;
+    & img {
+      margin-right: 5px;
+    }
+    ${({ focus }) =>
+      focus &&
+      `
+      background: #1264a3;
+      color: white;
+    `};
+  `;
+```
+  - **Taged Template Literal**
+위쪽 코드에서 styled.button은 함수이다. 그리고 함수 뒤에 ``와 같이 백 틱을 써주면 해당 함수가 실행된다. 이 문법은 js 문법인데 Taged Template Literal이라고 한다. 그래서 styled.something은 함수로 여겨지고 그 후 Taged Template Literal로 함수 실행 및 백 틱 안에서 인자로 값들을 넣어주고 focus처럼 관련 함수도 넣을 수 있는 것.
+  
+  - **Emotion 과 Styled-Component의 장점 3번째**    
+또 아래의 코드처럼 "어떤 lib에서 가져온 컴포넌트의 상 or 하위 컴포넌트에는 꼭 특정 컴포넌트가 있어야 한다" 같은 규칙이 있을 수 있다. TypeScript로 Styling을 하는 lib들에서는 아래 코드처럼 스타일링 컴포넌트의 속성을 규칙에서 요구하는 특정 컴포넌트로 넣을 수 있어서 규칙에 맞추기도 더 쉽다.
+```ts
+  export const MentionsTextarea = styled(MentionsInput)`
+    font-family: Slack-Lato, appleLogo, sans-serif;
+    font-size: 15px;
+    padding: 8px 9px;
+    & strong {
+      background: skyblue;
+    }
+    & textarea {
+      height: 44px;
+      padding: 9px 10px !important;
+      outline: none !important;
+      border-radius: 4px !important;
+      resize: none !important;
+      line-height: 22px;
+      border: none;
+    }
+    & ul {
+      border: 1px solid lightgray;
+      max-height: 200px;
+      overflow-y: auto;
+      padding: 9px 10px;
+      background: white;
+      border-radius: 4px;
+      width: 150px;
+    }
+  `;
+```
+  
+  - **정규표현식의 필요성**    
+react-mentions lib를 사용하여 Slack의 Mention 기능을 만들어 보았는데, 예를 들어 @test1234로 멘션 하게 되면 채팅창에는 @[test1234](2) 와 같이 @[name][id] 나온다, 강의에서는 @[name][id]를 정규식을 통해 @test1234처럼 만들었는데 js로 했더라면 참 힘들었을 것 같다. 정규 표현식은 꼭 배워볼 필요가 있다고 느꼈다.
+  
+  - **flat함수**    
+useSWRInfinite 함수를 쓰게되면 2차원배열로 값을 리턴하게 되는데 개발하다가 2차원배열으로 받은 값을 1차원배열로 바꾸면서 불변성 유지 + 값들을 반대로 돌려야하는 상황이있었다. 원래 1차원 배열이였을 때는 스프레드 연산 및 reverse를 사용해서 했는데 2차원배열에서는 flat 과 reverse를 사용했다. 새로운 함수인 flat에 대해 알게되었다.
+  
+  - **여러 배열타입의 또다른 선언 방법**    
+이때까지 배열타입을 여러개 지정해줄때 ```array: IArr[] | IBrr = something``` 과 같이 했는데 강의를 보니 ```array: (IArr | IBrr)[] = something``` 으로 해준다.
+  
+  - **Propery in Value**    
+강의를 보다가 const user = 'Sender' in data ? data.Sernder : data.User; 라는 문법이 나왔는데 "Something" in Variable 문법 유용할것같다. for(let i in data) { r } 에서 많이 봤던 in인데 그냥 써도 되는지는 첨 알았다.
   
 </details>
 
@@ -78,5 +153,8 @@ Navigation Bar 만들 때 Link말고 NavLink사용하면 좋을듯, NavLink사�
 강의는 4강까지 봤다. DM 관련 컴포넌트들이나 로직을 만졌는데 채팅 관련 프론트 작업을 처리하는 방법을 어느 정도 알게 된 것 같다. 또한 SWR로 여러 GET 관련 api들을 다루다 보니 이제는 익숙해진듯하다. styled-component나 emotion처럼 TypeScript로 Styling을 하는 lib들의 장점이 다른 lib들을 import 해올 수 있다는 점인 것 같다. 나중에 토이 프로젝트할 때도 쓸 것 같다. 셋째 날에는 5장, 넷째 날에는 6,7장을 듣고 정리해서 깃허브에 올릴 것 같다.
   
 ### 3일차
+가격대비 가성비 굿굿.  오늘 배운것중에는 type관련된것과 js 문법이 가장 기억에 남는다. 실무나 학교에서 개발할 때 유용하게 쓸 수 있을것같다. 
 
 ### 마무리
+3일 만에 44강, 10시간 ~ 11시간 분량의 강의를 다 보았다. 순수 시간만 10시간 ~ 11시간이지 중간중간 멈춰서 코드 보면서 이해하고 따라 치고 한 시간까지 하면 대략 16시간 정도 되지 않을까 생각한다. 재밌어서 계속 보게 된 인강은 오랜만인 것 같다. 처음 딱 보았을 때 SWR과 Emotion, 그리고 TS에다가 Webpack도 직접 설정한다고 해서 내가 필요한 것들만 모여있길래 바로 구매했다. 정말 잘 산 것 같다. 강의를 보면서 아쉬운 점도 있고 괜찮은 점도 있었으나 만족도는 95%이다. 새로 산 키보드로 코딩을 하니 더 재미있었던 것 같다. 강의를 보면서 가장 기억에 남는 것은 SWR을 이용해서 서버 통신하는 모든 코드들이 기억에 남는다. SWR이라는 새로운 상태 관리 lib를 사용해서 SWR만의 특색을 살려 코딩한 느낌인데, fetcher를 잘 사용해서 모듈화를 잘해놓으면 유지 보수에도 좋을 것 같다. 깃허브에서 SWR 과 React를 사용한 프로젝트들을 눈여겨봐야겠다. 이 강의를 기점으로 개학하고 학교에 가면 node.js부터 백엔드를 공부해볼 생각이다. 시험 기간과 학교 행사도 없으니 맘 편하게 공부에 집중할 수 있을 것 같아서 기분이 좋다. 
+살면서 가장 방학을 알차게 보낸 것 같아서 기분이 좋다!
