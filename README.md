@@ -4,7 +4,7 @@
 ### 느낀점 바로가기
 
 <details open>
-<summary>프로젝트 결과물</summary>
+  <summary><strong>프로젝트 결과물</strong></summary>
   
   - **로그인 / 회원가입**
   <p align="center">
